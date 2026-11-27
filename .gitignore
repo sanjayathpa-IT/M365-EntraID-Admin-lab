@@ -1,0 +1,14 @@
+# Offboarding snapshots and script logs - may contain real user data
+logs/
+*.log
+*.json.bak
+
+# Any real user exports
+*-export.csv
+output/
+
+# Secrets - never commit
+*.pfx
+*.cer
+.env
+secrets*
