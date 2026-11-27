@@ -31,7 +31,7 @@ automated with **PowerShell (Microsoft Graph SDK)** so it is repeatable and audi
 ## How to run
 ```powershell
 # 1. Connect (once per session)
-.\Connect-Lab.ps1
+.\Connect-Lab.ps1 -TenantId yourtenant.onmicrosoft.com
 
 # 2. Always preview first with -WhatIf
 .\New-LabUsers.ps1 -CsvPath .\users.csv -Domain yourtenant.onmicrosoft.com -WhatIf
@@ -48,14 +48,32 @@ automated with **PowerShell (Microsoft Graph SDK)** so it is repeatable and audi
 
 ## Results
 
-<!-- Replace with your own screenshots (blur tenant name, emails and IDs) -->
-| | |
+### Onboarding – 5 users created and licensed from CSV
+![Script output](../screenshots/01-new-users-script.png)
+![Active users](../screenshots/01-users-created.png)
+
+### Mover – Ram's job details updated
+![Profile updated](../screenshots/01-ram-profile-updated.png)
+
+### Password reset – temporary password, change at next sign-in
+![Password reset](../screenshots/01-password-reset.png)
+
+### Lost phone – Shyam's MFA reset
+| Before | After |
 |---|---|
-| Users created and licensed | ![Users created](../screenshots/01-users-created.png) |
-| Ram's updated job details | ![Profile updated](../screenshots/01-ram-profile-updated.png) |
-| Shyam's MFA methods after reset | ![MFA reset](../screenshots/01-shyam-mfa-reset.png) |
-| Ram offboarded: blocked, unlicensed, no groups | ![Offboarded](../screenshots/01-ram-offboarded.png) |
-| Offboarding script output | ![Script output](../screenshots/01-offboard-script.png) |
+| ![Before](../screenshots/01-shyam-mfa-before.png) | ![After](../screenshots/01-shyam-mfa-reset.png) |
+
+![MFA reset script](../screenshots/01-shyam-mfa-reset-script.png)
+
+### Guest access
+![Guest user](../screenshots/01-guest-user.png)
+
+### Leaver – Ram offboarded
+| Before | After |
+|---|---|
+| ![Before](../screenshots/01-ram-before-offboard.png) | ![After](../screenshots/01-ram-offboarded.png) |
+
+![Offboarding script](../screenshots/01-offboard-script.png)
 
 ## Security notes
 
@@ -85,8 +103,15 @@ groups and licences. A JSON snapshot is saved before any change for audit and ro
 If the mailbox is needed, convert it to a shared mailbox first (see section 05).
 
 ## What I learned
-<!-- Write 3–5 points in your own words. Examples to think about:
-- UsageLocation must be set before a licence can be assigned
-- Difference between disabling an account and revoking sessions
-- Why dynamic groups and group-based licences can't be removed directly
-- Something that broke and how you fixed it -->
+<!-- Draft based on what actually happened – rewrite in your own words -->
+- **Graph permissions are split by risk.** Creating users worked with `User.ReadWrite.All`, but resetting
+  a password returned `403 Authorization_RequestDenied`. Password resets need the separate
+  `User-PasswordProfile.ReadWrite.All` scope. I added it to the connection rather than using a broader role.
+- **Sign-in troubleshooting.** The Windows Web Account Manager (WAM) popup rejected my work account as
+  "doesn't exist" on a brand-new tenant. Disabling WAM (`Set-MgGraphOption -DisableLoginByWAM $true`) and
+  targeting the tenant with `-TenantId` fixed it.
+- **Validate input before calling the API.** The licence check listed the valid SKU name when I passed a
+  placeholder, and the guest script rejected a malformed email before anything was sent.
+- **UsageLocation must be set before a licence can be assigned** – the create script sets it from the CSV.
+- **Disabling an account is not enough.** Existing sessions keep working until tokens expire, so offboarding
+  revokes sessions straight after blocking sign-in.
