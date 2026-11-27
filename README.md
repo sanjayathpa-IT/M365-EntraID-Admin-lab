@@ -36,4 +36,4 @@ Microsoft 365 lab tenant · Entra ID · Exchange Online · PowerShell 7 · Micro
 
 ## Author
 **Sanjay Thapa** – IT Support, Sydney · working towards a SOC Analyst role
-[LinkedIn](https://www.linkedin.com/in/your-profile)
+[LinkedIn](https://www.linkedin.com/in/sanjay-syd1)
